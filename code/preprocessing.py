@@ -114,7 +114,7 @@ class GlowpickPreprocessing(object):
         return x.tolist()
 
     def embedding(self, x, size=100, window=5, min_count=5):
-        model = FastText(size=self.embed_size, window=5, min_count=5, sentences=x)
+        model = FastText(size=self.embed_size, window=5, min_count=5, sentences=x, seed=223)
         
         return model
 
