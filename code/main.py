@@ -1,113 +1,66 @@
-'''
-1. 자음,모음,특수문자 제거 (온점, 쉼표 포함)
-2. 띄어쓰기 교정
-3. 단어 수정
-4. 형태소분석기로 명사 and 형용사 추출 
-5. Fasttext embedding
-
-- 사전 추가
-'''
-
-
-import pandas as pd 
-from chatspace import ChatSpace
+from scipy.spatial.distance import cosine
 from gensim.models import FastText
 from konlpy.tag import Kkma 
-from scipy.spatial.distance import cosine
 
 import pickle
 import argparse
-import re
+import os
+
+import pandas as pd
 import numpy as np 
+from preprocessing import GlowpickPreprocessing
 
 parser = argparse.ArgumentParser()
+# preprocessing
 parser.add_argument('--train',action='store_true', help='train or not')
-parser.add_argument('--path',type=str,default='../dataset/glowpick_reviews.csv', help='file path')
+parser.add_argument('--filepath',type=str,default='../dataset/glowpick_reviews.csv', help='file path')
+parser.add_argument('--wordpath',type=str,default=None, help='replace word dictionary')
+parser.add_argument('--pospath',type=str,default=None, help='filtering pos dictionary')
+parser.add_argument('--savedir',type=str,default='../saved_file', help='directory path to save model and preprocessed file')
+# evaluation
 parser.add_argument('--search',type=str,help='text to search')
+parser.add_argument('--modelname',type=str,help='embedding model name')
+parser.add_argument('--pre_filename',type=str,help='preprocessed filename')
 args = parser.parse_args()
 
 
-class GlowpickPreprocessing(object):
-    def __init__(self, embed_size=100):
-        self.embed_size = embed_size
-
-    def fit(self, x, use_wordfix=False, use_pos=False):
-        '''
-        return:
-            texts: preprocessed texts
-        '''
-        # stopword
-        texts = list(map(self.stopword, x))
-        print('[Log]: complete stopword')
-
-        # spacefix
-        texts = self.spacefix(texts)
-        print('[Log]: complete spacefix')
-
-        # wordfixclrea
-        if use_wordfix:
-            texts = self.wordfix(texts)
-            print('[Log]: complete wordfix')
-
-        # posfix
-        if use_pos:
-            texts = self.posfix(texts)
-
-        return texts
-
-    def stopword(self, x):
-        pattern1 = '([ㄱ-ㅎㅏ-ㅣ]+)'
-        pattern2 = '[^\w\s,.]'
-        repl = ''
-        x = re.sub(pattern=pattern1, repl=repl, string=x)
-        x = re.sub(pattern=pattern2, repl=repl, string=x)
-        return x
-
-    def spacefix(self, x):
-        spacer = ChatSpace()
-        texts = spacer.space(x, batch_size=64)
-        texts = pd.Series(texts).str.split(' ').tolist()
-
-        return texts
-
-    def posfix(self, x):
-        return x 
-        
-    def wordfix(self, x):
-        
-        return x
-
-    def embedding(self, x, size=100, window=5, min_count=5):
-        model = FastText(size=self.embed_size, window=5, min_count=5, sentences=x)
-        
-        return model
-
-    def sent2vec(self, x, model):
-        sent_vec = np.zeros((len(x), self.embed_size))
-        for i in range(len(x)):
-            sent_vec[i] = model.wv[x[i]].sum(axis=0)
-
-        return sent_vec 
+# check savedir
+if not os.path.isdir(args.savedir):
+    os.mkdir(args.savedir)
 
 # Load data
-data = pd.read_csv(args.path)
+data = pd.read_csv(args.filepath)
 # train
 GP = GlowpickPreprocessing()
-kkma = Kkma()
 if args.train:    
+    # config
+    modelname = 'model'
+    pre_textname = 'pre_text'
+
+    if args.wordpath:
+        modelname += '_word'
+        pre_textname += '_word'
+    if args.pospath:
+        modelname += '_pos'
+        pre_textname += '_pos'
+
     # train set
-    text = GP.fit(data.content.tolist())
+    text = GP.fit(data.content.tolist(), 
+                  wordfix_path=args.wordpath,
+                  posfix_path=args.pospath)
     # embdding model
     model = GP.embedding(text)
-    model.save('model.bin') # save
+    model.save(f'{args.savedir}/{modelname}.bin') # save
 
     # save sent text
     text = GP.sent2vec(text, model)
-    with open('preprocessed_text.txt','wb') as f:
+    with open(f'{args.savedir}/{pre_textname}.txt','wb') as f:
         pickle.dump(text,f)
 else:
+    # molphs analyzer
+    kkma = Kkma()
     # load embed model
-    model = FastText.load('model.bin')
+    model = FastText.load(f'{args.savedir}/{args.modelname}')
     # test
     test_text = GP.fit([args.search])
     print('test_text: ',test_text)
@@ -124,7 +77,7 @@ else:
             print(model.wv.most_similar(word))
 
     # similarity
-    with open('preprocessed_text.txt','rb') as f:
+    with open(f'{args.savedir}/{args.pre_filename}','rb') as f:
         sent_vec = pickle.load(f)
 
     dist_arr = np.zeros((sent_vec.shape[0]))
