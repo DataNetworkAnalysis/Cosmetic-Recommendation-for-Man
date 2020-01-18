@@ -105,7 +105,7 @@ class GlowPickReview:
             date_lst.append(lst[0])
             user_id_lst.append(lst[1])
             age_skin_type_lst.append(lst[2])
-            content_lst.append(lst[3])
+            content_lst.append(' '.join(lst[3:]))
             sex_lst.append(sex)
             rate_lst.append(rate)
         
