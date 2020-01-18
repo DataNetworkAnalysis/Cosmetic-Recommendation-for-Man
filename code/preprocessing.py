@@ -124,3 +124,4 @@ class GlowpickPreprocessing(object):
             sent_vec[i] = model.wv[x[i]].sum(axis=0)
 
         return sent_vec 
+        

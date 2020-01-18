@@ -36,26 +36,34 @@ if args.train:
     # config
     modelname = 'model'
     pre_textname = 'pre_text'
+    pre_embedname = 'pre_embed'
 
     if args.wordpath:
         modelname += '_word'
         pre_textname += '_word'
+        pre_embedname += '_word'
     if args.pospath:
         modelname += '_pos'
         pre_textname += '_pos'
+        pre_embedname += '_pos'
 
     # train set
     text = GP.fit(data.content.tolist(), 
                   wordfix_path=args.wordpath,
                   posfix_path=args.pospath)
+    
+    # save pre text
+    with open(f'{args.savedir}/{pre_textname}.pickle','wb') as f:
+        pickle.dump(text,f)
+
     # embdding model
     model = GP.embedding(text)
     model.save(f'{args.savedir}/{modelname}.bin') # save
 
-    # save sent text
-    text = GP.sent2vec(text, model)
-    with open(f'{args.savedir}/{pre_textname}.txt','wb') as f:
-        pickle.dump(text,f)
+    # save sent vec
+    embed = GP.sent2vec(text, model)
+    with open(f'{args.savedir}/{pre_embedname}.pickle','wb') as f:
+        pickle.dump(embed,f)
 else:
     # molphs analyzer
     kkma = Kkma()
