@@ -18,6 +18,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 import pandas as pd 
 import time
+import os
 
 
 class GlowPickReview:
@@ -41,9 +42,22 @@ class GlowPickReview:
         # make total dataframe
         total_df = pd.DataFrame()
 
+        if os.path.isfile('../dataset/glowpick_reviews.csv'):
+            df = pd.read_csv('../dataset/glowpick_reviews.csv')
+            total_df = pd.concat([total_df, df], axis=0)
+        print('total_df.shape: ',total_df.shape)
+
         for prod_url in self.prod_url_lst:
-            self.driver.get(self.url + prod_url)
-            self.driver.implicitly_wait(5)
+            print('total_df.shape: ',total_df.shape)
+            if total_df.shape[0] > 0:
+                if prod_url in total_df.product_url.unique():
+                    continue
+            
+            try:
+                self.driver.get(self.url + prod_url)
+                self.driver.implicitly_wait(5)
+            except:
+                continue
 
             self.scroll_down()
 
@@ -54,7 +68,7 @@ class GlowPickReview:
 
             total_df = pd.concat([total_df, df], axis=0)
         
-        total_df.to_csv('../dataset/glowpick_reviews.csv',index=False)
+            total_df.to_csv('../dataset/glowpick_reviews.csv',index=False)
 
         self.driver.quit()
 
@@ -83,7 +97,7 @@ class GlowPickReview:
                 loop = False
             else:
                 start_height = current_height
-                print('current height: ',current_height)
+                # print('current height: ',current_height)
 
     def crawling(self):
         user_id_lst = []
