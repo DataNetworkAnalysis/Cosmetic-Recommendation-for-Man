@@ -15,10 +15,12 @@ python glowpick.py
 '''
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 import pandas as pd
 
+import os
 import time
 
 
@@ -32,49 +34,85 @@ class GlowPick:
         self.li_lst = None
 
     def run(self):
-        self.get_main()
         # make total dataframe
         total_df = pd.DataFrame()
 
-        for i in range(len(self.li_lst)):
-            self.get_main()
-
-            category = self.li_lst[i].text
-            print()
-            print('category: ',category)
-
-            # select category
-            self.li_lst[i].click()
-
-            # search click
-            self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/div/button').click()
-            time.sleep(2)
-
-            # scroll down
-            self.scroll_down()
-
-            # crawling
-            df = self.crawling()
-            df['category'] = category
-
+        # if there's file, load file and concatenate
+        if os.path.isfile('../dataset/glowpick_products.csv'):
+            df = pd.read_csv('../dataset/glowpick_products.csv')
             total_df = pd.concat([total_df, df], axis=0)
+        print('total_df.shape: ',total_df.shape)
 
-        total_df.to_csv('../dataset/glowpick_products.csv', index=False)
+
+        titla_nb = 17 # 크게 17가지 범주
+        for cat in range(1,titla_nb+1):      
+            # glowpick main page
+            self.get_main(cat=cat)
+
+            # get title
+            title = self.driver.find_element_by_xpath(f'//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/div/ul/li[{cat}]/div[1]/span[1]').text
+            print('title: ',title)
+            print('len(self.li_lst): ',len(self.li_lst))
+            for i in range(len(self.li_lst)):
+                self.get_main(cat=cat)
+
+                self.driver.implicitly_wait(5)
+                category = self.li_lst[i].text
+                print()
+                print(f'{i} category: ',category)
+
+                # if category in total df, continue
+                if total_df.shape[0] > 0:
+                    title_df = total_df[total_df['title'] == title]
+                    if ('category' in title_df.columns) and (self.li_lst[i].text in title_df.category.unique()):
+                        continue
+
+                # select category
+                self.driver.execute_script("arguments[0].click();", self.li_lst[i])
+                self.driver.implicitly_wait(5)
+
+                # search click
+                element = self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/div/button').send_keys(Keys.ENTER)
+                self.driver.implicitly_wait(5)
+
+                # scroll down
+                self.scroll_down()
+
+                # crawling
+                df = self.crawling()
+                df['category'] = category
+                df['title'] = title
+
+                total_df = pd.concat([total_df, df], axis=0)
+
+                total_df.to_csv('../dataset/glowpick_products.csv', index=False)
+                print(total_df.tail())
+
         print()
         print('Complete')
 
         self.driver.quit()
 
-    def get_main(self):
+    def get_main(self, cat=17):
+        '''
+        args:
+        - get_lst : sub category li list
+        - cat : category index. default 17: 남자화장품
+        '''
         # glowpick main page
         self.driver.get(self.url)
         self.driver.implicitly_wait(5)
-
         # click category list
-        self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/button').click()
-        self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/div/ul/li[17]').click()
-        ul = self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/div/ul/li[17]/div[2]/ul')
-        self.li_lst = ul.find_elements_by_tag_name('li')
+        self.driver.find_element_by_xpath('//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/button').send_keys(Keys.ENTER)
+        time.sleep(1)
+    
+        self.driver.find_element_by_xpath(f'//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/div/ul/li[{cat}]').click()
+        self.driver.implicitly_wait(5)
+        time.sleep(1)
+
+    
+        li_ul = self.driver.find_element_by_xpath(f'//*[@id="gp-home"]/section[1]/div[1]/form/fieldset[1]/div/div/ul/li[{cat}]/div[2]/ul')
+        self.li_lst = li_ul.find_elements_by_css_selector('.list-item')
 
     def scroll_down(self):
         # scoll down 
@@ -101,7 +139,7 @@ class GlowPick:
                 loop = False
             else:
                 start_height = current_height
-                print('current height: ',current_height)
+                
 
     def crawling(self):
         # crawling list 
@@ -131,12 +169,12 @@ class GlowPick:
 
         # save dataframe
         df = pd.DataFrame({'brand':brand_lst,
-                        'product':product_lst,
-                        'vol_price':vol_price_lst,
-                        'rate':rate_lst,
-                        'nb_reviews':nb_reviews_lst,
-                        'sales_rank':sales_rank_lst,
-                        'product_url':product_url_lst})
+                           'product':product_lst,
+                           'vol_price':vol_price_lst,
+                           'rate':rate_lst,
+                           'nb_reviews':nb_reviews_lst,
+                           'sales_rank':sales_rank_lst,
+                           'product_url':product_url_lst})
 
         return df
 
