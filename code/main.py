@@ -68,7 +68,7 @@ if args.embed_size != 100:
 
 if args.train:    
     # train set
-    text = GP.fit(data.content.unique().tolist(), 
+    text = GP.fit(data.content.tolist(), 
                   wordfix_path=args.wordpath,
                   posfix_path=args.pospath)
     
@@ -104,8 +104,34 @@ else:
         dist_arr[i] = dist
 
     print('dist_arr.shape: ',dist_arr.shape)
+
+    # Load data
+    print('[LOAD] Load data...',end='')
+    data = pd.read_csv(args.reviewpath)
+    products = pd.read_csv(args.productpath)
+    print('(data.shape: ,{})'.format(data.shape) ,end='')
+    print('(products.shape: ,{})'.format(products.shape))
+
+    # feature selection
+    features = ['product_url','category','brand','vol_price','nb_reviews','sex','age_skin_type','rate_x','product','content']
+    show_features = ['category','brand','nb_reviews','vol_price','product']
+
+    # filtering 여성용품
+    if '여성용품' in products.title.unique():
+        print('[LOAD] filtering data')
+        data_prod = pd.merge(data, products, on='product_url', how='left')
+
+        male_cosmetic = data_prod[data_prod.title=='남성화장품']
+        male_reviews = data_prod[(data_prod.title!='남성화장품')&(data_prod.sex=='m')]
+
+        data = pd.concat([male_cosmetic, male_reviews], axis=0)
+
+        # rate_x -> rate
+        data = data.rename(columns={'rate_x':'rate'})
+        data = data[['user_id','sex','age_skin_type','rate','content','product_url']].drop_duplicates()
+        print('filtering data shape: ',data.shape)
+
     data['dist'] = dist_arr
-    products = pd.read_csv('../dataset/glowpick_products.csv')
     data_prod = pd.merge(data, products, on='product_url', how='left')
     rate_dict = {
         'best':0,
@@ -116,9 +142,7 @@ else:
     }
     data_prod.rate_x = data_prod.rate_x.map(rate_dict)
 
-    # feature selection
-    features = ['product_url','category','brand','vol_price','nb_reviews','sex','age_skin_type','rate_x','product','content']
-    show_features = ['category','brand','nb_reviews','vol_price','product']
+    
 
     # filtering
     s_dict = {
@@ -181,7 +205,9 @@ else:
     temp = temp[show_features].drop_duplicates()
     
     # choice top-5
-    for i in range(5):
+    for i in range(temp.shape[0]):
         for j in temp.iloc[i]:
             print('{0:.50s} / '.format(str(j)), end="")
         print('\n')
+        if i == 4:
+            break
