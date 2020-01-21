@@ -13,7 +13,8 @@ from preprocessing import GlowpickPreprocessing
 parser = argparse.ArgumentParser()
 # preprocessing
 parser.add_argument('--train',action='store_true', help='train or not')
-parser.add_argument('--filepath',type=str,default='../dataset/glowpick_reviews.csv', help='file path')
+parser.add_argument('--reviewpath',type=str,default='../dataset/glowpick_reviews.csv', help='reviews path')
+parser.add_argument('--productpath',type=str,default='../dataset/glowpick_products.csv', help='products path')
 parser.add_argument('--wordpath',type=str,default=None, help='replace word dictionary')
 parser.add_argument('--pospath',type=str,default=None, help='filtering pos dictionary')
 parser.add_argument('--embed_size',type=int,default=100, help='ebedding vector size')
@@ -22,19 +23,35 @@ parser.add_argument('--savedir',type=str,default='../saved_file', help='director
 parser.add_argument('--search',type=str,help='text to search')
 args = parser.parse_args()
 
-
 # check savedir
 if not os.path.isdir(args.savedir):
     os.mkdir(args.savedir)
 
 # Load data
-data = pd.read_csv(args.filepath)
+print('[LOAD] Load data...',end='')
+data = pd.read_csv(args.reviewpath)
+products = pd.read_csv(args.productpath)
+print('(data.shape: ,{})'.format(data.shape) ,end='')
+print('(products.shape: ,{})'.format(products.shape))
+
+# filtering 여성용품
+if '여성용품' in products.title.unique():
+    print('[LOAD] filtering data')
+    data_prod = pd.merge(data, products, on='product_url', how='left')
+
+    male_cosmetic = data_prod[data_prod.title=='남성화장품']
+    male_reviews = data_prod[(data_prod.title!='남성화장품')&(data_prod.sex=='m')]
+
+    data = pd.concat([male_cosmetic, male_reviews], axis=0)
+    data = data[['user_id','content','product_url']].drop_duplicates()
+    print('filtering data shape: ',data.shape)
+
 # train
 GP = GlowpickPreprocessing()
 # config
-modelname = 'model'
-pre_textname = 'pre_text'
-pre_embedname = 'pre_embed'
+modelname = 'new_model'
+pre_textname = 'new_pre_text'
+pre_embedname = 'new_pre_embed'
 
 if args.wordpath:
     modelname += '_word'
@@ -51,7 +68,7 @@ if args.embed_size != 100:
 
 if args.train:    
     # train set
-    text = GP.fit(data.content.tolist(), 
+    text = GP.fit(data.content.unique().tolist(), 
                   wordfix_path=args.wordpath,
                   posfix_path=args.pospath)
     
@@ -86,6 +103,7 @@ else:
         dist = cosine(sent, test_sent_vec[0])
         dist_arr[i] = dist
 
+    print('dist_arr.shape: ',dist_arr.shape)
     data['dist'] = dist_arr
     products = pd.read_csv('../dataset/glowpick_products.csv')
     data_prod = pd.merge(data, products, on='product_url', how='left')
@@ -147,6 +165,8 @@ else:
         for i, p in enumerate(data_prod['product']):
             for c in inter_word:
                 if c in p:
+                    if (c=='하드')&('스프레이' in p):
+                        continue
                     inter_idx.append(i)
         data_prod = data_prod.iloc[inter_idx]
 
