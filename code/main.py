@@ -205,7 +205,9 @@ else:
     temp = temp[show_features].drop_duplicates()
     
     # choice top-5
-    for i in range(5):
+    for i in range(temp.shape[0]):
         for j in temp.iloc[i]:
             print('{0:.50s} / '.format(str(j)), end="")
         print('\n')
+        if i == 4:
+            break
