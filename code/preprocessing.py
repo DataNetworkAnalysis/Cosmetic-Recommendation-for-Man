@@ -33,21 +33,21 @@ class GlowpickPreprocessing(object):
         '''
         # stopword
         texts = list(map(self.stopword, x))
-        print('[Log]: complete stopword')
+        print('[PREPROCESSING]: complete stopword')
 
         # spacefix
         texts = self.spacefix(texts)
-        print('[Log]: complete spacefix')
+        print('[PREPROCESSING]: complete spacefix')
 
         # wordfixclrea
         if wordfix_path:
             texts = self.wordfix(texts, wordfix_path)
-            print('[Log]: complete wordfix')
+            print('[PREPROCESSING]: complete wordfix')
 
         # posfix
         if posfix_path:
             texts = self.posfix(texts, posfix_path)
-            print('[Log]: complete posfix')
+            print('[PREPROCESSING]: complete posfix')
 
         return texts
 
