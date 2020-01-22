@@ -54,9 +54,11 @@ class GlowpickPreprocessing(object):
     def stopword(self, x):
         pattern1 = '([ㄱ-ㅎㅏ-ㅣ]+)'
         pattern2 = '[^\w\s,.]'
+        pattern3 = '[\d]'
         repl = ''
         x = re.sub(pattern=pattern1, repl=repl, string=x)
         x = re.sub(pattern=pattern2, repl=repl, string=x)
+        x = re.sub(pattern=pattern3, repl=repl, string=x)
         return x
 
     def spacefix(self, x):
@@ -121,7 +123,10 @@ class GlowpickPreprocessing(object):
     def sent2vec(self, x, model):
         sent_vec = np.zeros((len(x), self.embed_size))
         for i in range(len(x)):
-            sent_vec[i] = model.wv[x[i]].sum(axis=0)
+            try:
+                sent_vec[i] = model.wv[x[i]].sum(axis=0)
+            except:
+                continue
 
         return sent_vec 
         
@@ -132,15 +137,30 @@ class Filtering(object):
         self.features = show_features
 
     def fit(self, data, s_text):
-        # data = self.cat_filter2(data, s_text)
+        '''
+        args:
+        - data: reviews data
+        - s_text: preprocessed text
+
+        return:
+        - data: filtering data
+        '''
         data = self.prod_filter(data, s_text)
         data = self.nb_review_filter(data)
         data = self.rate_filter(data)
-        data = self.cat_filter1(data, s_text)
+        data = self.cat_filter(data, s_text)
         
         return data
 
-    def cat_filter1(self, data, s_text):
+    def cat_filter(self, data, s_text):
+        '''
+        args:
+        - data: reviews data
+        - s_text: preprocessed text
+
+        return:
+        - data: filtering data
+        '''
         # check category
         cat_lst = data.category.unique()
         f = set(s_text[0]) & set(cat_lst)
@@ -151,31 +171,6 @@ class Filtering(object):
         # sorting
         data = data[['dist','rate_x'] + self.features].sort_values(by=['rate_x','dist'])
         data = data[self.features].drop_duplicates()
-
-        return data
-
-
-    def cat_filter2(self, data, s_text):
-        '''
-        args:
-        - data: reviews data
-        - s_text: preprocessed text
-
-        return:
-        - data: filtering data
-        '''
-        cat_lst = data.category.unique()
-
-        # 추출된 키워드가 카테고리 내에 있으면 걔네만 추천
-        inter_cat = []
-        for cat in cat_lst:
-            for s in s_text[0]:
-                if s in cat:
-                    inter_cat.append(cat)
-
-        if len(inter_cat) > 0:
-            data = data[data.category.isin(inter_cat)]
-            print('[{0:15s}] category (data shape: {1:})'.format('FILTERING',data.shape))
 
         return data
 
@@ -266,3 +261,9 @@ class Filtering(object):
         print('[{0:15s}] rating (data shape: {1:})'.format('FILTERING',data.shape)) 
 
         return data
+
+
+def l2norm(embed_matrix):
+    norm = np.sqrt(np.power(embed_matrix,2).sum(axis=1, keepdims=True))
+    embed_matrix = embed_matrix / norm
+    return embed_matrix 

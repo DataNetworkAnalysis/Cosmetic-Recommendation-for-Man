@@ -1,12 +1,14 @@
 import pandas as pd
 
-def load(args):
+def load(review_path, product_path, info_path):
     # Load data
     print('[{0:15s}] Load data...'.format('LOAD'), end='')
-    data = pd.read_csv(args.reviewpath)
-    products = pd.read_csv(args.productpath)
+    data = pd.read_csv(review_path)
+    products = pd.read_csv(product_path)
+    infos = pd.read_csv(info_path)
     print('(data.shape: ,{})'.format(data.shape) ,end='')
-    print('(products.shape: ,{})'.format(products.shape))
+    print('(products.shape: ,{})'.format(products.shape), end='')
+    print('(infos.shape: ,{})'.format(infos.shape))
 
     # filtering 여성용품
     if '여성용품' in products.title.unique():
@@ -24,4 +26,4 @@ def load(args):
         data = data[['user_id','rate','content','product_url']].drop_duplicates()
         print(f'(filtering data shape: {data.shape}')
 
-    return data, products
+    return data, products, infos
