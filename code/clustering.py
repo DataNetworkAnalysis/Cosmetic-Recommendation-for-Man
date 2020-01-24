@@ -57,7 +57,7 @@ class Clustering:
         plt.figure(figsize=figsize)
 
         for i in range(self.k):
-            sns.scatterplot(x='PC1', y='PC2', data=pca_df[pca_df.labels == str(i)], label=i, alpha=0.3)
+            sns.scatterplot(x='PC1', y='PC2', data=pca_df[pca_df.labels == str(i)], label=f'cluster {i}', alpha=0.3)
         plt.legend(prop={'size':labelsize})
         plt.title(f'K-means Cluster Analysis Results (k={k})', size=titlesize)
         plt.xlabel('PC1',size=labelsize)
@@ -97,7 +97,6 @@ class Clustering:
         min_count : 워드클라우드에 나타낼 최소 단어수
         '''
         figsize = (10,10) if 'figsize' not in kwargs.keys() else kwargs['figsize']
-        labelsize = 10 if 'labelsize' not in kwargs.keys() else kwargs['labelsize']
         titlesize = 10 if 'titlesize' not in kwargs.keys() else kwargs['titlesize']
         row = 2 if 'row' not in kwargs.keys() else kwargs['row']
 
@@ -109,7 +108,7 @@ class Clustering:
             wordcloud = WordCloud(min_word_length=min_count, font_path=font_path , background_color='white').generate(words_lst_i)
             ax[i//(self.k//row),i%(self.k//row)].imshow(wordcloud)
             ax[i//(self.k//row),i%(self.k//row)].axis('off')
-            ax[i//(self.k//row),i%(self.k//row)].set_title(f'Cluster {i}')
+            ax[i//(self.k//row),i%(self.k//row)].set_title(f'Cluster {i}', size=titlesize)
             
         # save plot
         if savedir:

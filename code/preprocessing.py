@@ -150,6 +150,7 @@ class Filtering(object):
         data = self.cat_filter(data, s_text)
         data = self.nb_review_filter(data)
         data = self.rate_filter(data)
+        data = self.distance_limit(data)
         data = self.sorting(data)
         
         return data
@@ -267,6 +268,20 @@ class Filtering(object):
 
         return data
 
+    def distance_limit(self, data):
+        '''
+        args:
+        - data: reviews data
+
+        return:
+        - data: filtering data
+        '''
+        dist_med = data.dist.describe().loc['25%']
+        data = data[data.dist <= dist_med]
+        print('[{0:15s}] limited distance (data shape: {1:})'.format('FILTERING',data.shape) )
+
+        return data
+        
 
     def rate_filter(self, data):
         rate_dict = {

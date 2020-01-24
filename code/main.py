@@ -98,7 +98,6 @@ if args.train:
     model_description = GP.embedding(description)
     model_tag = GP.embedding(tag_lst)
 
-
     # 4. sentence embedding vector
     embed = GP.sent2vec(text, model)
     embed = l2norm(embed)
