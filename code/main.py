@@ -104,6 +104,7 @@ if args.train:
     embed = l2norm(embed)
 
     if args.embed_sum:
+        # 4.1 product description and tags embedding
         embed_description = GP.sent2vec(description, model_description)
         embed_tag = GP.sent2vec(tag_lst, model_tag)
         embed_description = l2norm(embed_description)
