@@ -145,10 +145,11 @@ class Filtering(object):
         return:
         - data: filtering data
         '''
-        data = self.prod_filter(data, s_text)
+        # data = self.prod_filter(data, s_text)
+        data = self.cat_filter(data, s_text)
         data = self.nb_review_filter(data)
         data = self.rate_filter(data)
-        data = self.cat_filter(data, s_text)
+        data = self.sorting(data)
         
         return data
 
@@ -161,17 +162,34 @@ class Filtering(object):
         return:
         - data: filtering data
         '''
-        # check category
+        # filtering1
+        cat_dict = {
+            '헤어스타일링':['왁스','스프레이'],
+            '핸드크림':['핸드'],
+            '비비크림':['BB'],
+            '비비크림':['CC'],
+            '남성향수':['향수'],
+            '선블록':['선크림','썬크림'],
+            '선스프레이':['썬스프레이'],
+            '선스틱':['썬스틱'],
+            '선케어':['썬케어'],
+            '쉐이빙':['쉐이빙폼']
+        }
+        f1 = []
+        for s in s_text[0]:
+            for k, v in cat_dict.items():
+                if s in v:
+                    f1.append(k)  
+        if len(f1) > 0:
+            data = data = data[data.category.isin(f1)]
+
+        # filtering2
         cat_lst = data.category.unique()
-        f = set(s_text[0]) & set(cat_lst)
-        if len(f) > 0:
-            data = data = data[data.category.isin(f)]
+        f2 = set(s_text[0]) & set(cat_lst)
+        if len(f2) > 0:
+            data = data = data[data.category.isin(f2)]
             print('[{0:15s}] category (data shape: {1:})'.format('FILTERING',data.shape))
         
-        # sorting
-        data = data[['dist','rate_x'] + self.features].sort_values(by=['rate_x','dist'])
-        data = data[self.features].drop_duplicates()
-
         return data
 
 
@@ -198,7 +216,7 @@ class Filtering(object):
 
                 #헤어스타일링 항목 
                 'hairstyle_dict':{
-                '왁스':['무빙러버','젤','하드','헤어잼','크래프트 클레이 리모델러블 매트 텍스처라이저','알앤비','포맨 오리지널 슈퍼 매트','버번 바닐라 & 텐저린 헤어 텍스처라이저','맨 퓨어-포먼스 그루밍 클레이'],
+                '왁스':['무빙러버','헤어잼','크래프트 클레이 리모델러블 매트 텍스처라이저','알앤비','포맨 오리지널 슈퍼 매트','버번 바닐라 & 텐저린 헤어 텍스처라이저','맨 퓨어-포먼스 그루밍 클레이'],
             #     '컬':['볼륨미아 볼륨 무스']
                 }
             }
@@ -213,6 +231,7 @@ class Filtering(object):
                 for i in v:
                     if i in s_text[0]:
                         inter_word = v
+        print('[{0:15s}] filter product name {1:}'.format('FILTERING',inter_word))
 
         # filtering
         if len(inter_word) > 0:
@@ -222,6 +241,7 @@ class Filtering(object):
                     if c in p:
                         inter_idx.append(i)
             data = data.iloc[inter_idx]
+            print('[{0:15s}] filtering count (intersection length: {1:})'.format('FILTERING',len(inter_idx)))
             print('[{0:15s}] product name (data shape: {1:})'.format('FILTERING',data.shape))
 
         return data
@@ -262,7 +282,15 @@ class Filtering(object):
 
         return data
 
+    def sorting(self, data):
+        # sorting
+        data = data[['dist','rate_x'] + self.features].sort_values(by=['rate_x','dist'])
+        data = data[self.features].drop_duplicates()
+        print('[{0:15s}] sorting and drop duplicates (data shape: {1:})'.format('FILTERING',data.shape))
 
+        return data
+
+ 
 def l2norm(embed_matrix):
     norm = np.sqrt(np.power(embed_matrix,2).sum(axis=1, keepdims=True))
     embed_matrix = embed_matrix / norm

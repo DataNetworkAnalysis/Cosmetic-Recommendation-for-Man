@@ -22,7 +22,8 @@ parser.add_argument('--productpath',type=str,default='../dataset/glowpick_produc
 parser.add_argument('--infopath',type=str,default='../dataset/glowpick_info.csv', help='products information path')
 parser.add_argument('--wordpath',type=str,default=None, help='replace word dictionary')
 parser.add_argument('--pospath',type=str,default=None, help='filtering pos dictionary')
-parser.add_argument('--embed_size',type=int,default=100, help='ebedding vector size')
+parser.add_argument('--embed_size',type=int,default=100, help='embedding vector size')
+parser.add_argument('--embed_sum',action='store_true', help='product description and tags embedding')
 parser.add_argument('--savedir',type=str,default='../saved_file', help='directory path to save model and preprocessed file')
 # evaluation
 parser.add_argument('--search',type=str,help='text to search')
@@ -49,7 +50,7 @@ infopath = args.infopath
 # save names
 modelname = 'new_model'
 pre_textname = 'new_pre_text'
-pre_embedname = 'multi_pre_embed'
+pre_embedname = 'new_pre_embed'
 
 if args.wordpath:
     modelname += '_word'
@@ -100,29 +101,29 @@ if args.train:
 
     # 4. sentence embedding vector
     embed = GP.sent2vec(text, model)
-    embed_description = GP.sent2vec(description, model_description)
-    embed_tag = GP.sent2vec(tag_lst, model_tag)
-
-    # 4.1 l2 normalization
     embed = l2norm(embed)
-    embed_description = l2norm(embed_description)
-    embed_tag = l2norm(embed_tag)
 
-    # 4.2 sum embedding vector
-    embed_df = pd.DataFrame(embed)
-    embed_df['product_url'] = data.product_url.values
+    if args.embed_sum:
+        embed_description = GP.sent2vec(description, model_description)
+        embed_tag = GP.sent2vec(tag_lst, model_tag)
+        embed_description = l2norm(embed_description)
+        embed_tag = l2norm(embed_tag)
 
-    embed_info = embed_description + embed_tag
-    embed_info_df = pd.DataFrame(embed_info)
-    embed_info_df['product_url'] = infos.product_url.values
+        # 4.2 sum embedding vector
+        embed_df = pd.DataFrame(embed)
+        embed_df['product_url'] = data.product_url.values
 
-    embed_df = pd.merge(embed_df, embed_info_df, on='product_url', how='left')
-    
-    x_embed = [f'{i}_x' for i in range(100)]
-    y_embed = [f'{i}_y' for i in range(100)]
-    embed = embed_df[x_embed].values + embed_df[y_embed].values
+        embed_info = embed_description + embed_tag
+        embed_info_df = pd.DataFrame(embed_info)
+        embed_info_df['product_url'] = infos.product_url.values
 
-    embed = l2norm(embed)
+        embed_df = pd.merge(embed_df, embed_info_df, on='product_url', how='left')
+        
+        x_embed = [f'{i}_x' for i in range(100)]
+        y_embed = [f'{i}_y' for i in range(100)]
+        embed = embed_df[x_embed].values + embed_df[y_embed].values
+
+        embed = l2norm(embed)
 
     # save embedding vector
     with open(f'{args.savedir}/{pre_embedname}.pickle','wb') as f:
