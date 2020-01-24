@@ -18,7 +18,8 @@ import pandas as pd
 import numpy as np
 
 class GlowpickPreprocessing(object):
-    def __init__(self, embed_size=100):
+    def __init__(self, embed_size=100, random_state=223):
+        self.seed = 223
         self.embed_size = embed_size
         self.kkma = Kkma()
 
@@ -116,7 +117,7 @@ class GlowpickPreprocessing(object):
         return x.tolist()
 
     def embedding(self, x, size=100, window=5, min_count=5):
-        model = FastText(size=self.embed_size, window=5, min_count=5, sentences=x, seed=223)
+        model = FastText(size=self.embed_size, window=5, min_count=5, sentences=x, seed=self.seed)
         
         return model
 
