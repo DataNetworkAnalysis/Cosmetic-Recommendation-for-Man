@@ -90,7 +90,7 @@ class Clustering:
         # save plot
         if savedir:
             plt.tight_layout()
-            plt.savefig('../images/arms.png', dpi=100)
+            plt.savefig(f'{savedir}/arms.png', dpi=100)
 
     def wordcloud(self, min_count=0, font_path='C:/Windows/Fonts/malgun.ttf', savedir=None, **kwargs):
         '''
@@ -99,10 +99,13 @@ class Clustering:
         figsize = (10,10) if 'figsize' not in kwargs.keys() else kwargs['figsize']
         titlesize = 10 if 'titlesize' not in kwargs.keys() else kwargs['titlesize']
         row = 2 if 'row' not in kwargs.keys() else kwargs['row']
+        ex_i = 4 if 'ex_i' not in kwargs.keys() else kwargs['ex_i']
 
         f, ax = plt.subplots(row,self.k//row, figsize=figsize)
         for i in range(self.k):
-            
+            if i == ex_i:
+                ax[i//(self.k//row),i%(self.k//row)].axis('off')
+                continue
             words_df_i = self.words_df[self.words_df.labels==i]
             words_lst_i = ' '.join(words_df_i.content.tolist())
             wordcloud = WordCloud(min_word_length=min_count, font_path=font_path , background_color='white').generate(words_lst_i)
@@ -113,4 +116,4 @@ class Clustering:
         # save plot
         if savedir:
             plt.tight_layout()
-            plt.savefig(f'../images/class(k={self.k}).png',dpi=100)
+            plt.savefig(f'{savedir}/class(k={self.k}).png',dpi=100)
