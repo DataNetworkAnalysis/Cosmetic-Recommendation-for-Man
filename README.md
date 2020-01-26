@@ -6,8 +6,7 @@
 
 # Why
 
-1년의 올리브영 아르바이트 기간 동안, 같은 성별인 여성 고객들에게는 비교적 쉽게 추천할 수 있었으나, **남성 고객들에게 제품 추천은 매우 어렵고 생소했음**.
-실제로 알바를 하며 이러한 어려움을 겪은 경우가 많았고, 이를 해결해보고자 올리브영 남성제품에 대한 분석을 결정
+1년의 올리브영 아르바이트 기간 동안, 같은 성별인 여성 고객들에게는 비교적 쉽게 추천할 수 있었으나, **남성 고객들에게 제품 추천은 매우 어렵고 생소했다**. 실제로 알바를 하며 이러한 어려움을 겪은 경우가 많았고, 이를 해결해보고자 남성들을 위한 화장품관련 데이터에 대한 분석을 결정했다.
 
 # Purpose
 
@@ -16,7 +15,7 @@
 
 # Data
 
-[글로우픽(glowpick)](https://www.glowpick.com/) 데이터를 사용하여 **남성** **제품** 관련 리뷰 데이터 이용
+[글로우픽(glowpick)](https://www.glowpick.com/) 데이터를 사용하여 **남성 제품** 관련 리뷰 데이터 이용
 
 1. glowpick_products
 
@@ -46,7 +45,7 @@ product_url | string | 해당 제품의 url
 
 # How to Run
 
-**Data bCrawling**
+**Data Crawling**
 ```bash
 $ python glowpick.py
 $ python reviews.py
@@ -57,7 +56,7 @@ $ python reviews.py
 $ bash preprocessing.sh
 ```
 
-**test**
+**Test**
 ```bash
 $ bash test.sh "검색문장"
 ```
