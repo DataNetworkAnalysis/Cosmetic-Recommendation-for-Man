@@ -23,7 +23,7 @@ def load(review_path, product_path, info_path):
         data = pd.concat([male_cosmetic, male_reviews], axis=0)
 
         data = data.rename(columns={'rate_x':'rate'})
-        data = data[['user_id','rate','content','product_url']].drop_duplicates()
+        data = data[['user_id','age_skin_type','rate','content','product_url']].drop_duplicates()
         print(f'(filtering data shape: {data.shape}')
 
     return data, products, infos
