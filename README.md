@@ -68,7 +68,7 @@ $ bash test.sh "검색문장"
 사용자별 특성을 파악하기위해 군집 분석을 하였다. 앞서 전처리한 임베딩 벡터를 통해서 k-means 시행했다. 최적의 k를 구하기위해 1부터 9까지 k-means를 실행한 후 clustering 결과마다 Inertia 값을 비교하여 그 차이가 줄어드는 지점의 k로 결정한다.
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/arms.png?raw=true" width='400'><br>
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/arms.png?raw=true" width='400'><br>
     <i>Figure 1</i>
 </p>
 
@@ -77,14 +77,14 @@ $ bash test.sh "검색문장"
 군집2의 경우 군집0,3과 유사한 점이 많고 군집 4의 경우 수가 적고 다른 군집과 섞여있었다. 더 정확한 해석을 하기위해 각 군집별 리뷰데이터를 워드클라우드로 확인한다.
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/pca_scatter.png?raw=true" width='400'><br>
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/pca_scatter.png?raw=true" width='400'><br>
     <i>Figure 2</i>
 </p>
 
 각 군집별 특징을 워드클라우드로 보았을 때 우선 군집 4의 경우 NT(No Token)라는 단어가 가장 크고 단어 수가 비교적 적음을 알 수 있다. 이는 전처리 과정에서 형태소 분석시 추출된 단어가 없는 경우 NT(No Token)로 처리했기 때문이다. 군집4는 제외하고 다른 군집들에 대해서 각각 해석하도록한다.
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/class(k=6).png?raw=true"><br>
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/class(k=6).png?raw=true"><br>
     <i>Figure 3</i>
 </p>
 
@@ -100,9 +100,6 @@ Name | Description
 **피부영세시대**(군집5) | 이 군집은 피부영세시대라 쓰고 피부young세시대 또는 피부0세시대라고 읽는다. 자극에 예민하거나 피부에 트러블이 많아서 고민이 많다면 다시 아기피부로 돌아가기위해 이 군집의 제품들을 보는것을 추천한다.
 
 </p>
-
-
-
 
 ## 6.2. 상품 추천(Product Recommendation)
 
@@ -125,13 +122,13 @@ category	|brand	|nb_reviews|	vol_price	|product	|product_url
 ## Cosmetic Dashboard for Man
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/Dashboard/slide1.jpg?raw=true">
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/Dashboard/slide1.JPG?raw=true">
 </p>
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/Dashboard/slide2.png?raw=true">
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/Dashboard/slide2.JPG?raw=true">
 </p>
 
 <p align="center">
-    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Man/blob/master/images/Dashboard/slide3.png?raw=true">
+    <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/Dashboard/slide3.JPG?raw=true">
 </p>
