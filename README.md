@@ -111,6 +111,9 @@ $ bash test.sh '홀애비 냄새나는 남사친을 위한 향 좋은 제품'
 
 주로 향수 관련된 제품들이 많았다. 냄새를 없애는데 가장 좋은 방법인 것 같다. 그러나 가격을 고려했을때 다음에도 또 보고싶은 남사친이 아니라면 선물은 자제하는게 좋을 거 같다.
 
+<p align='center'>
+    <i><strong>Table 2. 추천리스트</strong></i><br>
+
 category	|brand	|nb_reviews|	vol_price	|product	|product_url
 ---|---|---|---|---|---
 향초   	| 양키캔들 (YANKEE CANDLE)	|113	|623g39,000원	|미드나잇 쟈스민	|/product/43548
@@ -118,6 +121,8 @@ category	|brand	|nb_reviews|	vol_price	|product	|product_url
 남성향수	| 샤넬 (CHANEL)	|59   |	50ml114,000원	|블루 드 샤넬 오 드 빠르펭|	/product/16788
 남성향수	| 샤넬 (CHANEL)	|89  	|100ml140,000원	|알뤼르 옴므 스포츠 오 드 뚜왈렛 스프레이|	/product/3297
 남성향수	| 페라리 (Ferrari)  |	206	|40ml45,000원	|스쿠데리아 블랙 EDT	|/product/3338
+
+</p>
 
 ## Cosmetic Dashboard for Man
 
