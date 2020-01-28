@@ -111,3 +111,6 @@ dataset/
 
 # saved_file
 saved_file/
+
+# psd
+*.psd
