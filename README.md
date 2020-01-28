@@ -124,7 +124,7 @@ category	|brand	|nb_reviews|	vol_price	|product	|product_url
 
 </p>
 
-## Cosmetic Dashboard for Man
+## 6.3. Cosmetic Dashboard for Man
 
 <p align="center">
     <img src="https://github.com/DataNetworkAnalysis/Cosmetic-Recommendation-for-Man/blob/master/images/Dashboard/slide1.JPG?raw=true">
