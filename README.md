@@ -1,8 +1,8 @@
 # 1. 화알못 남성을 위한 화장품 바이블
 
 - Member: 조하늘, 이재헌, 김진우, 허재혁  
-- Status: Doing  
-- Tag: Complete
+- Status: Complete
+- Tag: Project
 
 # 2. Why
 
