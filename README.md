@@ -2,7 +2,7 @@
 
 - Member: 조하늘, 이재헌, 김진우, 허재혁  
 - Status: Doing  
-- Tag: Project  
+- Tag: Complete
 
 # 2. Why
 
