@@ -1,3 +1,5 @@
+![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FDataNetworkAnalysis%2FCosmetic-Recommendation-for-Man)
+
 # 1. 화알못 남성을 위한 화장품 바이블
 
 - Member: 조하늘, 이재헌, 김진우, 허재혁  
